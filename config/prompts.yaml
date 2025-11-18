@@ -1,0 +1,129 @@
+# Template Prompts per Sistema Legale AI
+
+system_prompt: |
+  Sei un assistente legale specializzato nel diritto italiano.
+
+  REGOLE FONDAMENTALI:
+  1. Usa ESCLUSIVAMENTE le normative fornite nel contesto
+  2. Ogni affermazione DEVE citare la fonte specifica con formato [Art. X, Comma Y, Codice/Legge]
+  3. Se non trovi una normativa pertinente, scrivi esplicitamente: [NORMATIVA DA VERIFICARE]
+  4. Segui ESATTAMENTE la struttura e lo stile del template fornito
+  5. Non inventare MAI articoli o riferimenti normativi
+  6. Mantieni un linguaggio formale e preciso
+  7. Separa chiaramente i fatti dalle interpretazioni giuridiche
+
+  Formato citazioni obbligatorio: [Art. X, Comma Y, Codice/Legge]
+
+  Quando non sei sicuro di un'informazione, indica esplicitamente la necessità di verifica.
+
+query_prompt_template: |
+  CONTESTO NORMATIVO DISPONIBILE:
+  {normative_context}
+
+  ESEMPI DI RIFERIMENTO:
+  {esempi_context}
+
+  STRUTTURA TEMPLATE DA SEGUIRE:
+  {template_structure}
+
+  RICHIESTA DELL'UTENTE:
+  {user_request}
+
+  ISTRUZIONI PER LA GENERAZIONE:
+  - Genera una relazione legale professionale seguendo la struttura del template
+  - Cita SEMPRE le fonti normative utilizzate
+  - Usa il formato [Art. X, Comma Y, Codice/Legge] per ogni citazione
+  - Mantieni coerenza con gli esempi forniti
+  - Se una normativa necessaria non è disponibile, indicalo chiaramente
+  - Compila tutti i placeholder del template con informazioni appropriate
+
+  RICORDA: Mai inventare normative. Solo fonti verificate.
+
+citation_query_prompt: |
+  Basandoti ESCLUSIVAMENTE sul seguente contesto normativo, rispondi alla domanda fornendo citazioni precise.
+
+  Contesto:
+  {context_str}
+
+  Domanda: {query_str}
+
+  Fornisci una risposta dettagliata citando gli articoli specifici utilizzati.
+
+normative_analysis_prompt: |
+  Analizza le seguenti normative rispetto al caso specifico:
+
+  Caso: {case_description}
+
+  Normative disponibili:
+  {normative_chunks}
+
+  Identifica:
+  1. Articoli direttamente applicabili
+  2. Articoli correlati ma non direttamente applicabili
+  3. Eventuali lacune normative
+
+  Fornisci l'analisi con citazioni precise.
+
+esempio_extraction_prompt: |
+  Analizza i seguenti documenti di esempio e identifica:
+  1. Struttura ricorrente
+  2. Pattern di linguaggio utilizzati
+  3. Stile delle citazioni
+  4. Organizzazione delle sezioni
+
+  Esempi:
+  {esempi_text}
+
+  Estrai pattern chiave da replicare nella generazione.
+
+template_parsing_prompt: |
+  Analizza il seguente template e identifica:
+  1. Tutti i placeholder (formato {{VARIABILE}} o <<<VARIABILE>>>)
+  2. Struttura delle sezioni
+  3. Stili di formattazione richiesti
+  4. Sezioni ripetibili
+
+  Template:
+  {template_content}
+
+  Fornisci una mappa della struttura.
+
+confidence_evaluation_prompt: |
+  Valuta il livello di confidenza della seguente affermazione rispetto alle fonti:
+
+  Affermazione: {statement}
+
+  Fonti disponibili: {sources}
+
+  Assegna un punteggio da 0 a 1 e giustifica:
+  - 1.0: Citazione diretta testuale
+  - 0.8-0.9: Parafrasi molto fedele
+  - 0.5-0.7: Interpretazione basata su fonte
+  - 0.3-0.4: Inferenza da fonti correlate
+  - 0.0-0.2: Informazione non supportata
+
+fallback_prompt: |
+  Non è stato possibile recuperare normative sufficientemente pertinenti per la richiesta.
+
+  Richiesta: {user_request}
+
+  Normative recuperate (confidence bassa):
+  {low_confidence_results}
+
+  Genera una bozza indicando chiaramente:
+  1. Quali parti richiedono verifica normativa [NORMATIVA DA VERIFICARE]
+  2. Suggerimenti su quali normative cercare manualmente
+  3. Disclaimer sulla necessità di integrazione da parte del professionista
+
+style_prompts:
+  formale: |
+    Usa un linguaggio estremamente formale e tecnico, appropriato per atti giudiziari.
+    Evita contrazioni e colloquialismi. Privilegia periodi complessi ma chiari.
+
+  semi_formale: |
+    Mantieni un tono professionale ma accessibile, adatto a relazioni per clienti.
+    Bilancia precisione tecnica e chiarezza espositiva.
+
+  sintetico: |
+    Sii conciso e diretto. Fornisci solo informazioni essenziali.
+    Usa elenchi puntati dove possibile. Massima chiarezza, minima verbosità.

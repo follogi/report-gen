@@ -1,0 +1,88 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/*.log
+*.log
+
+# Database e Cache
+vectordb/
+cache/
+*.db
+*.sqlite
+
+# Dati temporanei
+data/esempi/*
+!data/esempi/.gitkeep
+data/templates/*.docx
+!data/templates/.gitkeep
+
+# Normative (troppo grandi per git)
+data/normative_base/*
+!data/normative_base/.gitkeep
+data/normative_custom/*
+!data/normative_custom/.gitkeep
+
+# Output generati
+output_*.docx
+bibliografia_*.txt
+report_*.json
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment variables
+.env
+.env.local
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Streamlit
+.streamlit/
+
+# OS
+Thumbs.db

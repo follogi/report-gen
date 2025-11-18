@@ -1,0 +1,51 @@
+# Sistema Generazione Relazioni Legali AI - Dipendenze
+
+# Framework Web e UI
+streamlit==1.29.0
+
+# LlamaIndex e componenti RAG
+llama-index==0.9.48
+llama-index-llms-ollama==0.1.3
+llama-index-embeddings-huggingface==0.1.4
+llama-index-vector-stores-chroma==0.1.6
+llama-index-readers-file==0.1.6
+
+# Vector Database
+chromadb==0.4.22
+
+# Document Processing
+python-docx==1.1.0
+PyPDF2==3.0.1
+python-pptx==0.6.23
+
+# Configurazione e Parsing
+pyyaml==6.0.1
+
+# HTTP e Web Scraping
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Embeddings e NLP
+sentence-transformers==2.2.2
+transformers==4.36.2
+torch==2.1.2
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.3
+
+# Utility
+tqdm==4.66.1
+colorama==0.4.6
+python-dotenv==1.0.0
+
+# Logging e Monitoring
+loguru==0.7.2
+
+# Testing (opzionale per sviluppo)
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Type Checking
+typing-extensions==4.9.0
