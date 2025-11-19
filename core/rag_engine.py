@@ -62,6 +62,21 @@ from core.normative_fetcher import NormativeFetcher
 # Setup logging
 logger = logging.getLogger(__name__)
 
+# Verifica versione LlamaIndex installata
+try:
+    import llama_index
+    LLAMA_VERSION = getattr(llama_index, '__version__', 'unknown')
+    logger.info(f"📦 LlamaIndex version: {LLAMA_VERSION}")
+
+    # Warning se versione incompatibile
+    if LLAMA_VERSION.startswith("0.9"):
+        logger.error(
+            "❌ LlamaIndex 0.9.x non compatibile. "
+            "Reinstalla: pip uninstall llama-index -y && pip install -r requirements.txt"
+        )
+except Exception as e:
+    logger.warning(f"⚠️ Impossibile verificare versione LlamaIndex: {e}")
+
 
 class RAGEngineError(Exception):
     """Eccezione per errori del RAG engine."""
@@ -87,6 +102,9 @@ class LegalRAGEngine:
             config_path: Percorso al file di configurazione
         """
         logger.info("Inizializzazione LegalRAGEngine...")
+
+        # Verifica compatibilità import
+        self._verify_imports()
 
         # Carica configurazione
         self.config = self._load_config(config_path)
@@ -127,6 +145,32 @@ class LegalRAGEngine:
                 "system_prompt": "Sei un assistente legale specializzato nel diritto italiano.",
                 "query_prompt_template": "{context}\n\nDomanda: {query}"
             }
+
+    def _verify_imports(self):
+        """Verifica che tutti gli import critici siano disponibili."""
+        required_imports = [
+            ("llama_index.core", "VectorStoreIndex"),
+            ("llama_index.llms.ollama", "Ollama"),
+            ("llama_index.embeddings.huggingface", "HuggingFaceEmbedding"),
+            ("llama_index.vector_stores.chroma", "ChromaVectorStore"),
+        ]
+
+        missing = []
+        for module_name, class_name in required_imports:
+            try:
+                module = __import__(module_name, fromlist=[class_name])
+                getattr(module, class_name)
+            except (ImportError, AttributeError) as e:
+                missing.append(f"{module_name}.{class_name}")
+                logger.error(f"❌ Import fallito: {module_name}.{class_name}")
+
+        if missing:
+            raise ImportError(
+                f"Dipendenze mancanti: {', '.join(missing)}. "
+                f"Reinstalla: pip install -r requirements.txt"
+            )
+
+        logger.info("✅ Tutti gli import verificati")
 
     def _setup_llm(self):
         """Configura il Large Language Model (Ollama) con verifica connessione."""

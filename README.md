@@ -66,29 +66,37 @@ ollama serve
 
 ## 🚀 Installazione
 
-### 1. Clone Repository
+### Prerequisiti
+- Python 3.10 o 3.11
+- Ollama installato e in esecuzione
 
+### Installazione
+
+1. **Crea virtual environment:**
 ```bash
-cd /path/to/legal-ai-poc
+python3.10 -m venv venv
+source venv/bin/activate  # Su Windows: venv\Scripts\activate
 ```
 
-### 2. Crea Virtual Environment
-
+2. **Installa dipendenze:**
 ```bash
-python -m venv venv
-
-# Attiva virtual environment
-# Linux/Mac:
-source venv/bin/activate
-
-# Windows:
-venv\Scripts\activate
-```
-
-### 3. Installa Dipendenze
-
-```bash
+pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
+```
+
+3. **Verifica installazione:**
+```bash
+python test_setup.py
+```
+
+4. **Configura Ollama:**
+```bash
+# In un terminale separato
+ollama serve
+
+# In un altro terminale
+ollama pull mistral:latest
+ollama pull nomic-embed-text
 ```
 
 **Nota**: L'installazione può richiedere alcuni minuti per scaricare tutti i modelli di embedding.
@@ -223,6 +231,23 @@ retrieval:
 Contiene i template di prompt in italiano. Modificabile per personalizzare il comportamento dell'AI.
 
 ## 🔧 Troubleshooting
+
+### Problema: "cannot import name 'VectorStoreIndex'"
+
+**Causa:** Versione LlamaIndex incompatibile (0.9.x invece di 0.10.x)
+
+**Soluzione:**
+```bash
+pip uninstall llama-index llama-index-core -y
+pip cache purge
+pip install -r requirements.txt
+```
+
+**Verifica versioni corrette:**
+```bash
+pip show llama-index-core  # Deve essere 0.10.67
+pip show llama-index       # Deve essere 0.10.67
+```
 
 ### Problema: "Ollama non raggiungibile"
 

@@ -6,11 +6,12 @@ streamlit==1.29.0
 fastapi==0.104.1
 uvicorn==0.24.0
 
-# LlamaIndex e componenti
-llama-index==0.9.48
-llama-index-llms-ollama==0.1.2
-llama-index-embeddings-huggingface==0.1.4
-llama-index-vector-stores-chroma==0.1.6
+# LlamaIndex - VERSIONI AGGIORNATE E COMPATIBILI (0.10.67)
+llama-index-core==0.10.67
+llama-index==0.10.67
+llama-index-llms-ollama==0.3.4
+llama-index-embeddings-huggingface==0.3.0
+llama-index-vector-stores-chroma==0.2.0
 
 # Vector Database
 chromadb==0.4.22
