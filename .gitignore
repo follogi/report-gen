@@ -86,3 +86,6 @@ coverage.xml
 
 # OS
 Thumbs.db
+
+# Backup files
+*.backup

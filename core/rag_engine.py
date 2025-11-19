@@ -6,32 +6,60 @@ Questo modulo implementa il sistema RAG (Retrieval Augmented Generation) usando:
 - ChromaDB per vector storage
 - Ollama per LLM locale
 - CitationQueryEngine per tracciabilità
+
+Compatibile con llama-index 0.9.x+
 """
 
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import chromadb
+import requests
 import yaml
+from chromadb.config import Settings as ChromaSettings
+
+# Import corretti per LlamaIndex moderna
 from llama_index.core import (
-    Document,
-    Settings,
-    StorageContext,
     VectorStoreIndex,
-    load_index_from_storage,
+    SimpleDirectoryReader,
+    StorageContext,
+    Settings,
+    Document,
+    load_index_from_storage
 )
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.core.query_engine import CitationQueryEngine
+from llama_index.core.schema import (
+    NodeWithScore,
+    TextNode,
+    MetadataMode
+)
+from llama_index.core.node_parser import (
+    SentenceSplitter,
+)
+from llama_index.core.indices.query.base import BaseQueryEngine
+from llama_index.core.response_synthesizers import (
+    get_response_synthesizer,
+    ResponseMode
+)
 from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.query_engine import (
+    RetrieverQueryEngine,
+    CitationQueryEngine
+)
+
+# LLM e Embeddings - Import specifici per provider
 from llama_index.llms.ollama import Ollama
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
+# Vector Store
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
+# Import locali con import relativi per evitare circular imports
 from core.confidence_scorer import CitationScore, ConfidenceScorer
 from core.normative_fetcher import NormativeFetcher
 
+# Setup logging
 logger = logging.getLogger(__name__)
 
 
@@ -101,47 +129,121 @@ class LegalRAGEngine:
             }
 
     def _setup_llm(self):
-        """Configura il Large Language Model (Ollama)."""
+        """Configura il Large Language Model (Ollama) con verifica connessione."""
         ollama_config = self.config.get("ollama", {})
+        base_url = ollama_config.get("base_url", "http://localhost:11434")
+        model_name = ollama_config.get("model", "mistral:latest")
 
+        # Verifica che Ollama sia raggiungibile
+        try:
+            response = requests.get(f"{base_url}/api/tags", timeout=5)
+            if response.status_code != 200:
+                raise ConnectionError(f"Ollama non raggiungibile su {base_url}")
+
+            # Verifica che il modello sia disponibile
+            available_models = response.json()
+            models_list = [m['name'] for m in available_models.get('models', [])]
+
+            # Normalizza nome modello per confronto (mistral vs mistral:latest)
+            model_base = model_name.split(':')[0]
+            if not any(model_base in m for m in models_list):
+                logger.warning(
+                    f"⚠️ Modello {model_name} non trovato. "
+                    f"Modelli disponibili: {', '.join(models_list)}"
+                )
+                logger.info(f"💡 Scarica il modello con: ollama pull {model_name}")
+
+            logger.info(f"✅ Ollama raggiungibile su {base_url}")
+
+        except requests.RequestException as e:
+            logger.error(f"❌ Errore connessione Ollama: {e}")
+            logger.warning("⚠️ Assicurati che Ollama sia in esecuzione: ollama serve")
+            raise ConnectionError(
+                f"Impossibile connettersi a Ollama su {base_url}. "
+                f"Avvia Ollama con: ollama serve"
+            ) from e
+
+        # Configura LLM
         self.llm = Ollama(
-            model=ollama_config.get("model", "mistral:latest"),
-            base_url=ollama_config.get("base_url", "http://localhost:11434"),
+            model=model_name,
+            base_url=base_url,
             temperature=ollama_config.get("temperature", 0.1),
             request_timeout=ollama_config.get("timeout", 120),
             context_window=ollama_config.get("context_window", 8192),
+            additional_kwargs={
+                "num_predict": 2048,  # Max token in output
+                "top_p": 0.9,  # Focus su token più probabili
+                "repeat_penalty": 1.1,  # Evita ripetizioni
+            }
         )
 
         # Imposta come LLM globale per LlamaIndex
         Settings.llm = self.llm
 
-        logger.info(f"LLM configurato: {ollama_config.get('model', 'mistral:latest')}")
+        logger.info(f"✅ LLM configurato: Ollama {model_name}")
 
     def _setup_embeddings(self):
-        """Configura il modello di embeddings."""
+        """Configura il modello di embeddings locale."""
         embed_config = self.config.get("embedding", {})
+        model_name = embed_config.get("model", "sentence-transformers/all-MiniLM-L6-v2")
 
-        self.embed_model = HuggingFaceEmbedding(
-            model_name=embed_config.get("model", "sentence-transformers/all-MiniLM-L6-v2"),
-            cache_folder=embed_config.get("cache_dir", "./cache/embeddings"),
-            device=embed_config.get("device", "cpu")
-        )
+        try:
+            self.embed_model = HuggingFaceEmbedding(
+                model_name=model_name,
+                cache_folder=embed_config.get("cache_dir", "./cache/embeddings"),
+                embed_batch_size=32,  # Batch size per embedding
+                max_length=512,  # Lunghezza massima sequenze
+                device=embed_config.get("device", "cpu")  # Usa "cuda" se hai GPU
+            )
 
-        # Imposta come embedding globale per LlamaIndex
-        Settings.embed_model = self.embed_model
+            # Imposta come embedding globale per LlamaIndex
+            Settings.embed_model = self.embed_model
 
-        logger.info("Embedding model configurato")
+            logger.info(f"✅ Embeddings configurati: {model_name}")
+
+        except Exception as e:
+            logger.error(f"❌ Errore caricamento embeddings: {e}")
+            raise RuntimeError(
+                f"Impossibile caricare embedding model {model_name}. "
+                f"Verifica che sentence-transformers sia installato correttamente."
+            ) from e
 
     def _setup_vector_stores(self):
         """Configura ChromaDB per vector storage."""
         chroma_config = self.config.get("chromadb", {})
+        persist_dir = Path(chroma_config.get("persist_directory", "./vectordb"))
 
-        # Client ChromaDB persistente
-        self.chroma_client = chromadb.PersistentClient(
-            path=chroma_config.get("persist_directory", "./vectordb")
+        # Crea directory se non esiste
+        persist_dir.mkdir(exist_ok=True, parents=True)
+
+        try:
+            # Client ChromaDB persistente con configurazione
+            self.chroma_client = chromadb.PersistentClient(
+                path=str(persist_dir),
+                settings=ChromaSettings(
+                    anonymized_telemetry=False,  # Disabilita telemetria
+                    allow_reset=True  # Permette reset durante sviluppo
+                )
+            )
+
+            logger.info(f"✅ ChromaDB configurato in: {persist_dir}")
+
+        except Exception as e:
+            logger.error(f"❌ Errore inizializzazione ChromaDB: {e}")
+            raise RuntimeError(
+                f"Impossibile inizializzare ChromaDB in {persist_dir}. "
+                f"Verifica i permessi della directory."
+            ) from e
+
+        # Configura node parser per documenti legali
+        Settings.node_parser = SentenceSplitter(
+            chunk_size=512,
+            chunk_overlap=50,
+            separator=" ",
+            paragraph_separator="\n\n"
         )
 
-        logger.info("ChromaDB configurato")
+        logger.info("✅ Node parser configurato per documenti legali")
 
     def build_normative_index(self, force_rebuild: bool = False) -> VectorStoreIndex:
         """
