@@ -1,0 +1,115 @@
+# Configurazioni LLM predefinite per Legal AI System
+
+# Configurazione per sviluppo locale con Ollama (GRATIS)
+development:
+  provider: ollama
+  model_name: mistral
+  temperature: 0.1
+  max_tokens: 4096
+  top_p: 0.9
+  timeout: 120
+  base_url: http://localhost:11434
+  additional_kwargs:
+    repeat_penalty: 1.1
+
+# Configurazione per produzione con Claude Sonnet (QUALITÀ ALTA)
+production:
+  provider: claude
+  model_name: claude-3-sonnet
+  temperature: 0.1
+  max_tokens: 4096
+  top_p: 0.95
+  timeout: 60
+  # API key da variabile d'ambiente ANTHROPIC_API_KEY
+
+# Configurazione economica con Claude Haiku (VELOCE & ECONOMICO)
+production_economica:
+  provider: claude
+  model_name: claude-3-haiku
+  temperature: 0.1
+  max_tokens: 2048
+  top_p: 0.9
+  timeout: 30
+  # Costo: ~10x meno di Sonnet, 2x meno di GPT-3.5
+
+# Configurazione massima qualità con Claude Opus (PREMIUM)
+production_premium:
+  provider: claude
+  model_name: claude-3-opus
+  temperature: 0.05  # Molto deterministico
+  max_tokens: 8192
+  top_p: 0.95
+  timeout: 120
+  # Costo: ~15x Sonnet, ma qualità massima per documenti legali critici
+
+# Configurazione per testing con GPT-4
+testing_openai:
+  provider: openai
+  model_name: gpt-4-turbo-preview
+  temperature: 0.1
+  max_tokens: 4096
+  top_p: 0.9
+  timeout: 60
+  # API key da variabile d'ambiente OPENAI_API_KEY
+
+# Configurazione economica OpenAI con GPT-3.5
+testing_openai_economico:
+  provider: openai
+  model_name: gpt-3.5-turbo
+  temperature: 0.1
+  max_tokens: 4096
+  top_p: 0.9
+  timeout: 30
+
+# Configurazione per batch processing (Haiku)
+batch_processing:
+  provider: claude
+  model_name: claude-3-haiku
+  temperature: 0.1
+  max_tokens: 2048
+  top_p: 0.9
+  timeout: 30
+  # Ideale per processare molti documenti a costo contenuto
+
+# Configurazione per documenti critici (Opus)
+documenti_critici:
+  provider: claude
+  model_name: claude-3-opus
+  temperature: 0.05
+  max_tokens: 8192
+  top_p: 0.95
+  timeout: 180
+  # Usare solo per documenti legali molto importanti
+
+# Configurazione sviluppo con modelli locali Ollama
+dev_mistral:
+  provider: ollama
+  model_name: mistral
+  temperature: 0.1
+  max_tokens: 4096
+  timeout: 120
+
+dev_llama2:
+  provider: ollama
+  model_name: llama2
+  temperature: 0.1
+  max_tokens: 4096
+  timeout: 120
+
+dev_mixtral:
+  provider: ollama
+  model_name: mixtral
+  temperature: 0.1
+  max_tokens: 4096
+  timeout: 180
+  # Mixtral è più pesante ma anche più capace
+
+# Configurazione bilanciata per uso generale
+balanced:
+  provider: claude
+  model_name: claude-3-sonnet
+  temperature: 0.1
+  max_tokens: 4096
+  top_p: 0.9
+  timeout: 60
+  # Bilanciamento ottimale tra qualità, velocità e costo

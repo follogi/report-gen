@@ -17,6 +17,12 @@ __all__ = [
     'NormativeFetcher',
     # RAG Engine
     'LegalRAGEngine',
+    # LLM Wrapper
+    'LLMFactory',
+    'LLMConfig',
+    'LLMProvider',
+    'MultiLLMManager',
+    'BaseLLMWrapper',
 ]
 
 # Cache per moduli già importati
@@ -78,6 +84,34 @@ def __getattr__(name):
         except ImportError as e:
             raise ImportError(f"Impossibile importare LegalRAGEngine: {e}")
 
+    # LLM Wrapper components
+    elif name in ['LLMFactory', 'LLMConfig', 'LLMProvider', 'MultiLLMManager', 'BaseLLMWrapper']:
+        try:
+            from core.llm_wrapper import (
+                LLMFactory,
+                LLMConfig,
+                LLMProvider,
+                MultiLLMManager,
+                BaseLLMWrapper
+            )
+            if name == 'LLMFactory':
+                _module_cache[name] = LLMFactory
+                return LLMFactory
+            elif name == 'LLMConfig':
+                _module_cache[name] = LLMConfig
+                return LLMConfig
+            elif name == 'LLMProvider':
+                _module_cache[name] = LLMProvider
+                return LLMProvider
+            elif name == 'MultiLLMManager':
+                _module_cache[name] = MultiLLMManager
+                return MultiLLMManager
+            elif name == 'BaseLLMWrapper':
+                _module_cache[name] = BaseLLMWrapper
+                return BaseLLMWrapper
+        except ImportError as e:
+            raise ImportError(f"Impossibile importare {name} da llm_wrapper: {e}")
+
     # Attribute not found
     raise AttributeError(f"Il modulo '{__name__}' non ha l'attributo '{name}'")
 
@@ -134,6 +168,12 @@ def _try_eager_imports():
         modules_status['LegalRAGEngine'] = 'OK'
     except ImportError as e:
         modules_status['LegalRAGEngine'] = f'Error: {str(e)}'
+
+    try:
+        from core.llm_wrapper import LLMFactory
+        modules_status['LLMFactory'] = 'OK'
+    except ImportError as e:
+        modules_status['LLMFactory'] = f'Error: {str(e)}'
 
     return modules_status
 

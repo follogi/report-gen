@@ -44,3 +44,30 @@ python-dotenv==1.0.0
 # Optional ma utili
 aiofiles==23.2.1  # Per async file operations
 httpx==0.25.2  # Client HTTP moderno
+
+# ==============================================================================
+# LLM Provider SDKs (OPZIONALI - installa solo quelli che usi)
+# ==============================================================================
+# Nota: Ollama è già supportato tramite llama-index-llms-ollama (sopra)
+
+# Claude API (Anthropic) - Per usare modelli Claude-3
+# Installa solo se usi Claude: pip install anthropic
+# anthropic>=0.18.0
+
+# OpenAI API - Per usare GPT-4, GPT-3.5, etc.
+# Installa solo se usi OpenAI: pip install openai
+# openai>=1.10.0
+
+# Groq API - Per Mixtral/Llama ultra-veloci
+# Installa solo se usi Groq: pip install groq
+# groq>=0.4.0
+
+# ==============================================================================
+# Come installare un provider specifico:
+# ==============================================================================
+# pip install anthropic  # Per Claude
+# pip install openai     # Per OpenAI/GPT
+# pip install groq       # Per Groq
+#
+# Oppure tutti insieme:
+# pip install anthropic openai groq
