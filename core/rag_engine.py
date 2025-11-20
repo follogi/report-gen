@@ -57,7 +57,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 
 # Import locali con import relativi per evitare circular imports
 from core.confidence_scorer import CitationScore, ConfidenceScorer
-from core.normative_fetcher import NormativeFetcher
+from core.normative_loader import NormativeLoader
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -116,7 +116,9 @@ class LegalRAGEngine:
         self._setup_vector_stores()
 
         # Componenti ausiliari
-        self.normative_fetcher = NormativeFetcher(config_path)
+        self.normative_loader = NormativeLoader(
+            normative_dir=self.config.get("data", {}).get("normative_dir", "data/normative")
+        )
         self.confidence_scorer = ConfidenceScorer(self.config)
 
         # Indici
@@ -361,69 +363,26 @@ class LegalRAGEngine:
 
     def _load_normative_documents(self) -> List[Document]:
         """
-        Carica le normative come documenti LlamaIndex.
+        Carica le normative come documenti LlamaIndex da file JSON locali.
 
         Returns:
             Lista di Document
         """
         documents = []
 
-        # Ottieni lista normative disponibili
-        normative = self.normative_fetcher.list_normative_available()
+        # Carica tutte le normative dalla directory
+        all_normative = self.normative_loader.load_all_normative()
 
-        for norm_meta in normative:
-            codice = norm_meta['codice']
+        if not all_normative:
+            logger.warning("Nessuna normativa trovata in data/normative/")
+            return documents
 
-            # Carica normativa completa
-            norm_data = self.normative_fetcher.get_normativa(codice)
+        # Converti ogni normativa in documenti
+        for normativa_data in all_normative:
+            norm_documents = self.normative_loader.convert_to_documents(normativa_data)
+            documents.extend(norm_documents)
 
-            if not norm_data:
-                continue
-
-            # Crea un documento per ogni articolo
-            for articolo in norm_data['articoli']:
-                # Costruisci testo completo articolo
-                text_parts = []
-
-                # Titolo
-                if articolo.get('rubrica'):
-                    text_parts.append(f"Rubrica: {articolo['rubrica']}")
-
-                # Numero articolo
-                text_parts.append(f"Art. {articolo['numero']}")
-
-                # Testo
-                text_parts.append(articolo.get('testo', ''))
-
-                # Note
-                if articolo.get('note'):
-                    text_parts.append(f"Note: {articolo['note']}")
-
-                text = "\n\n".join(text_parts)
-
-                # Metadata ricchi per retrieval
-                metadata = {
-                    "codice": codice,
-                    "nome_normativa": norm_meta['nome'],
-                    "articolo": articolo['numero'],
-                    "fonte": norm_meta.get('urn', ''),
-                    "anno": norm_meta.get('anno', ''),
-                    "tipo": "normativa"
-                }
-
-                # Aggiungi commi se disponibili
-                if articolo.get('commi'):
-                    metadata['numero_commi'] = len(articolo['commi'])
-
-                doc = Document(
-                    text=text,
-                    metadata=metadata,
-                    id_=f"{codice}_art_{articolo['numero']}"
-                )
-
-                documents.append(doc)
-
-        logger.info(f"Caricati {len(documents)} articoli da {len(normative)} normative")
+        logger.info(f"Caricati {len(documents)} articoli da {len(all_normative)} normative")
 
         return documents
 
@@ -724,6 +683,13 @@ class LegalRAGEngine:
                 stats["normative_chunks"] = collection.count()
             except:
                 stats["normative_chunks"] = 0
+
+        # Statistiche normative loader
+        loader_stats = self.normative_loader.get_statistics()
+        stats.update({
+            "num_normative_files": loader_stats["num_normative"],
+            "total_normative_articles": loader_stats["total_articles"]
+        })
 
         return stats
 

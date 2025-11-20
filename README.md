@@ -64,6 +64,49 @@ ollama pull mistral
 ollama serve
 ```
 
+## 📋 Setup Normative
+
+Il sistema carica normative da file JSON locali invece di scaricarle automaticamente.
+
+### Formato JSON Normative
+
+Crea file JSON nella directory `data/normative/` con questo formato:
+
+```json
+{
+  "codice": "CC",
+  "urlFonte": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1942-03-16;262",
+  "dataDownload": "2024-11-20T10:30:00Z",
+  "testiArticoli": [
+    "Art. 1 - Fonti del diritto. Sono fonti del diritto: 1) le leggi; 2) i regolamenti...",
+    "Art. 2 - Abrogazione delle leggi. Le leggi non sono abrogate che da leggi posteriori...",
+    "Art. 2043 - Risarcimento per fatto illecito. Qualunque fatto doloso o colposo..."
+  ]
+}
+```
+
+**Campi:**
+- `codice`: Identificativo breve (es: "CC", "CP", "CPC")
+- `urlFonte`: URL fonte originale (opzionale, per tracciabilità)
+- `dataDownload`: Timestamp ISO 8601
+- `testiArticoli`: Array di stringhe, ogni elemento è un articolo completo con numero e testo
+
+### Preparare le Normative
+
+1. Scarica le normative che ti servono da fonti ufficiali
+2. Crea un file JSON per ogni normativa
+3. Posiziona i file in `data/normative/`
+4. Il sistema caricherà automaticamente tutti i file `.json` trovati
+
+**Esempio:**
+```bash
+data/normative/
+├── codice_civile.json
+├── codice_penale.json
+├── codice_procedura_civile.json
+└── esempio.json  # File di test già incluso
+```
+
 ## 🚀 Installazione
 
 ### Prerequisiti
@@ -120,91 +163,105 @@ legal-ai-poc/
 └── cache/                  # Cache embeddings
 ```
 
-## 🎬 Avvio Applicazione
+## 🎬 Avvio Sistema
 
-### 1. Avvia Ollama (Terminale 1)
+### Metodo 1: Comando Singolo (Raccomandato)
 
+```bash
+# Assicurati che Ollama sia in esecuzione in background
+ollama serve &
+
+# Avvia backend FastAPI (serve anche il frontend)
+python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Apri il browser su: **http://localhost:8000**
+
+### Metodo 2: Due Terminali Separati
+
+**Terminale 1 - Ollama:**
 ```bash
 ollama serve
 ```
 
-Lasciare questo terminale aperto.
-
-### 2. Avvia Streamlit (Terminale 2)
-
+**Terminale 2 - Backend + Frontend:**
 ```bash
-streamlit run app.py
+python -m uvicorn api.main:app --reload --port 8000
 ```
 
-L'applicazione si aprirà automaticamente nel browser a: `http://localhost:8501`
+**Apri browser:** http://localhost:8000
+
+### Note Avvio
+- Il flag `--reload` riavvia automaticamente il server quando modifichi il codice (utile in sviluppo)
+- Il frontend HTML/JS è servito direttamente da FastAPI
+- L'API REST è disponibile su http://localhost:8000/api/
+- La documentazione API interattiva è su http://localhost:8000/docs
 
 ## 📚 Guida Utilizzo
 
-### Primo Avvio
+### Interfaccia Web
 
-Al primo avvio, l'applicazione ti chiederà se scaricare il database normative base.
+Il sistema ora usa un'interfaccia HTML/JavaScript moderna accessibile da browser. All'avvio vedrai:
 
-1. Vai al tab **"📚 Normative"**
-2. Clicca **"📥 Scarica Normative Base"**
-3. Seleziona le normative da scaricare (consigliato: tutte)
-4. Clicca **"⬇️ Scarica Selezionate"**
-5. Attendi il completamento (può richiedere alcuni minuti)
+- **Header**: Status del sistema (verde = pronto)
+- **Sidebar destra**: Lista normative caricate dal sistema
+- **Area principale**: Sezioni per upload e generazione
 
 ### Workflow Tipico
 
-#### 1. Gestione Normative (Tab 1)
+#### 1. Preparazione Normative
 
-- **Visualizza normative disponibili**: Tree view con tutte le normative caricate
-- **Aggiungi normative custom**: Upload PDF/DOCX/TXT di normative aggiuntive
-- **Ricostruisci database**: Cancella e riscarica tutto
+Prima del primo utilizzo, assicurati di avere file JSON normative in `data/normative/`:
 
-#### 2. Documenti Sessione (Tab 2)
+```bash
+# Verifica normative disponibili
+ls data/normative/
 
-**Template DOCX:**
-- Upload del template con placeholders `{{VARIABILE}}`
-- Esempio: `{{CLIENTE}}`, `{{DATA}}`, `{{OGGETTO}}`
-- Marker per contenuto generato: `{{CONTENUTO_GENERATO}}`
+# Dovresti vedere almeno esempio.json
+# Aggiungi le tue normative in formato JSON
+```
 
-**Esempi:**
-- Upload multiplo di documenti di riferimento (PDF, DOCX, TXT)
-- Usati per guidare lo stile e la struttura
-- Max 10 file, 10MB ciascuno
+#### 2. Carica File Esempio (Opzionale)
 
-#### 3. Genera Relazione (Tab 3)
+**Trascina o clicca nella sezione "📄 File Esempio"**
+- Formati supportati: PDF, DOCX, TXT
+- Upload multiplo consentito
+- Gli esempi guidano lo stile del documento generato
 
-**Form Principale:**
-1. Scrivi la richiesta (cosa deve contenere la relazione)
-2. Configura opzioni avanzate:
-   - **Soglia Confidence**: 0.3-0.9 (default: 0.7)
-   - **Solo normative citate**: Raccomandato ✅
-   - **Stile**: Formale / Semi-formale / Sintetico
-3. Compila variabili template (se presenti)
-4. Clicca **"🚀 Genera Relazione"**
+#### 3. Carica Template (Opzionale)
 
-**Processo Generazione:**
-- Fase 1: Caricamento normative
-- Fase 2: Analisi template
-- Fase 3: Indicizzazione esempi
-- Fase 4: Generazione con AI
-- Fase 5: Creazione documento
+**Trascina o clicca nella sezione "📋 Template"**
+- Formati supportati: DOCX, TXT
+- Il template definisce la struttura del documento finale
+- Placeholder supportati: `{{VARIABILE}}`
 
-#### 4. Risultato (Tab 4)
+#### 4. Scrivi la Richiesta
 
-**Preview:**
-- Visualizzazione documento generato
-- Legenda colori:
-  - 🟢 Verde: Alta confidenza (>80%)
-  - 🟡 Giallo: Media confidenza (50-80%)
-  - 🔴 Rosso: Bassa confidenza (<50%)
+Nella sezione **"✍️ Richiesta"**:
+1. Descrivi la relazione che vuoi generare
+2. Scegli lo stile (Formale, Semi-formale, Sintetico)
+3. Clicca **"🚀 Genera Relazione"**
 
-**Citazioni:**
-- Lista completa con fonte, articolo, confidence
-- Clic per espandere dettagli
+**Esempio prompt:**
+```
+Genera una relazione sulla responsabilità extracontrattuale
+secondo l'art. 2043 CC, con focus su danni da circolazione
+stradale. Includi giurisprudenza rilevante se disponibile.
+```
 
-**Download:**
-- **📥 DOCX**: Documento completo con highlighting
-- **📑 Bibliografia**: File TXT con riferimenti normativi
-- **📊 Report Confidence**: JSON con analisi dettagliata
+#### 5. Visualizza Risultato
+
+Il sistema mostrerà:
+- **Confidence Score**: Barra di progresso con percentuale di affidabilità
+- **Alert**: Se il documento richiede revisione manuale
+- **Documento**: Testo completo generato
+- **Citazioni**: Lista delle fonti normative utilizzate con score
+- **Download**: Pulsante per scaricare il documento in formato TXT
+
+**Legenda Confidence:**
+- 🟢 >80%: Alta affidabilità
+- 🟡 50-80%: Media affidabilità (verifica consigliata)
+- 🔴 <50%: Bassa affidabilità (revisione necessaria)
 
 ## ⚙️ Configurazione Avanzata
 

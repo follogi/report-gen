@@ -1,5 +1,13 @@
 # Configurazione Sistema Generazione Relazioni Legali AI
 
+# Percorsi dati
+data:
+  normative_dir: "data/normative"
+  esempi_dir: "data/esempi"
+  template_dir: "data/template"
+  output_dir: "data/output"
+  sessions_dir: "data/sessions"
+
 ollama:
   model: "mistral:latest"
   base_url: "http://localhost:11434"

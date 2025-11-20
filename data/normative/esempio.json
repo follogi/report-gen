@@ -1,0 +1,10 @@
+{
+  "codice": "EXAMPLE",
+  "urlFonte": "https://example.com/normativa",
+  "dataDownload": "2024-11-20T17:00:00Z",
+  "testiArticoli": [
+    "Art. 1 - Esempio primo articolo. Questo è il testo completo del primo articolo della normativa esempio per testing del sistema Legal RAG.",
+    "Art. 2 - Esempio secondo articolo. Questo articolo contiene disposizioni generali relative all'applicazione delle norme. Il secondo articolo serve da esempio di come strutturare il testo normativo.",
+    "Art. 2043 - Risarcimento per fatto illecito. Qualunque fatto doloso o colposo, che cagiona ad altri un danno ingiusto, obbliga colui che ha commesso il fatto a risarcire il danno."
+  ]
+}
