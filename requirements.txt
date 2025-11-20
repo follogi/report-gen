@@ -1,50 +1,46 @@
-# Requirements per Legal AI POC
-# Python 3.10 o 3.11 raccomandato
-
-# Core Framework
+# === CORE FRAMEWORK ===
 streamlit==1.29.0
 fastapi==0.104.1
-uvicorn==0.24.0
+uvicorn[standard]==0.24.0
+debugpy==1.8.0
 
-# LlamaIndex - VERSIONI AGGIORNATE E COMPATIBILI (0.10.67)
-llama-index-core==0.10.67
-llama-index==0.10.67
-llama-index-llms-ollama==0.3.4
-llama-index-embeddings-huggingface==0.3.0
-llama-index-vector-stores-chroma==0.2.0
+# === LLAMAINDEX (Versioni stabili e tra loro compatibili) ===
+llama-index==0.10.42
+llama-index-core==0.10.42
+llama-index-llms-ollama==0.2.0
+llama-index-embeddings-huggingface==0.2.2
+llama-index-vector-stores-chroma==0.1.3
 
-# Vector Database
+# === VECTOR DATABASE ===
 chromadb==0.4.22
 
-# Document Processing
+# === DOCUMENT PROCESSING ===
 python-docx==1.1.0
 PyPDF2==3.0.1
-pdfplumber==0.10.3  # Alternativa migliore per PDF
+pdfplumber==0.10.3
 
-# ML/AI Dependencies
-sentence-transformers==2.2.2
-transformers>=4.37.0,<5.0.0  # Range compatibile
-torch>=2.0.0  # Richiesto da sentence-transformers
-tokenizers>=0.15.0
+# === MACHINE LEARNING ===
+sentence-transformers==2.6.1
+transformers==4.37.0
+tokenizers==0.15.1
+torch==2.1.2  # versione stabile, la meno pesante e più compatibile
 
-# Utility
-pyyaml==6.0.1
-requests==2.31.0
-beautifulsoup4==4.12.2
-lxml==4.9.3  # Per parsing XML da Normattiva
-
-# Data Processing
+# === DATA PROCESSING ===
 pandas==2.1.4
 numpy==1.24.3
 
-# Progress & Logging
+# === UTILITIES ===
+pyyaml==6.0.1
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==4.9.3
 tqdm==4.66.1
 colorama==0.4.6
 python-dotenv==1.0.0
 
-# Optional ma utili
-aiofiles==23.2.1  # Per async file operations
-httpx==0.25.2  # Client HTTP moderno
+# === OPTIONAL ===
+aiofiles==23.2.1
+httpx==0.27.1
 
 # ==============================================================================
 # LLM Provider SDKs (OPZIONALI - installa solo quelli che usi)
