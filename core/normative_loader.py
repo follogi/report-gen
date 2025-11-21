@@ -148,8 +148,8 @@ class NormativeLoader:
 
             doc = Document(
                 text=testo_articolo,
-                metadata=metadata,
-                id_=f"{codice}_art_{numero_articolo or idx}"
+                extra_info=metadata,
+                doc_id=f"{codice}_art_{numero_articolo or idx}"
             )
 
             documents.append(doc)
@@ -210,8 +210,8 @@ def create_example_normativa(output_path: str):
         "urlFonte": "https://example.com/normativa",
         "dataDownload": datetime.now().isoformat(),
         "testiArticoli": [
-            "Art. 1 - Esempio primo articolo. Questo è il testo completo del primo articolo della normativa esempio.",
-            "Art. 2 - Esempio secondo articolo. Questo è il testo completo del secondo articolo."
+            "Art. 1 - Esempio primo articolo. Questo Ã¨ il testo completo del primo articolo della normativa esempio.",
+            "Art. 2 - Esempio secondo articolo. Questo Ã¨ il testo completo del secondo articolo."
         ]
     }
 
@@ -229,17 +229,17 @@ if __name__ == "__main__":
 
     # Crea esempio se directory vuota
     if not list(loader.normative_dir.glob("*.json")):
-        create_example_normativa(loader.normative_dir / "esempio.json")
+        create_example_normativa(str(loader.normative_dir / "esempio.json"))
 
     # Test caricamento
     normative = loader.list_available_normative()
-    print(f"\n=Ú Normative disponibili: {len(normative)}")
+    print(f"\n=ï¿½ Normative disponibili: {len(normative)}")
 
     for norm in normative:
         print(f"  - {norm['codice']}: {norm['filename']}")
 
     # Test statistiche
     stats = loader.get_statistics()
-    print(f"\n=Ê Statistiche:")
+    print(f"\n=ï¿½ Statistiche:")
     for key, value in stats.items():
         print(f"  {key}: {value}")

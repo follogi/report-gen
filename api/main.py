@@ -178,13 +178,18 @@ async def upload_esempio(
 
     for file in files:
         # Valida estensione
-        if not file.filename.endswith(('.txt', '.docx', '.pdf')):
+        if not file.filename or not file.filename.endswith(('.txt', '.docx', '.pdf')):
             raise HTTPException(
                 status_code=400,
                 detail=f"Formato non supportato: {file.filename}"
             )
 
         # Salva file
+        if not file.filename:
+            raise HTTPException(
+                status_code=400,
+                detail="Il file caricato non ha un nome valido."
+            )
         file_path = esempi_dir / file.filename
         with open(file_path, 'wb') as f:
             content = await file.read()
@@ -217,6 +222,13 @@ async def upload_template(
     """
     session_dir = get_session_dir(session_id)
     template_dir = session_dir / "template"
+
+
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Il file caricato non ha un nome valido."
+        )
 
     # Valida estensione
     if not file.filename.endswith(('.txt', '.docx')):
@@ -315,13 +327,13 @@ async def delete_session(session_id: str):
 @app.on_event("startup")
 async def startup_event():
     """Inizializzazione all'avvio."""
-    logger.info("=€ Avvio Legal RAG API...")
+    logger.info("= Avvio Legal RAG API...")
 
     # Pre-carica RAG engine
     try:
         get_rag_engine()
     except Exception as e:
-        logger.error(f"  RAG Engine non disponibile all'avvio: {e}")
+        logger.error(f"ï¿½ RAG Engine non disponibile all'avvio: {e}")
 
 
 @app.on_event("shutdown")

@@ -291,7 +291,7 @@ class LegalRAGEngine:
 
         logger.info("✅ Node parser configurato per documenti legali")
 
-    def build_normative_index(self, force_rebuild: bool = False) -> VectorStoreIndex:
+    def build_normative_index(self, force_rebuild: bool = False) -> Optional[VectorStoreIndex]:
         """
         Costruisce o carica l'indice delle normative.
 
@@ -299,7 +299,7 @@ class LegalRAGEngine:
             force_rebuild: Se True, ricostruisce l'indice da zero
 
         Returns:
-            VectorStoreIndex delle normative
+            VectorStoreIndex delle normative o None se non disponibile
         """
         logger.info("Costruzione indice normative...")
 
@@ -386,7 +386,7 @@ class LegalRAGEngine:
 
         return documents
 
-    def build_esempi_index(self, esempio_files: List[str], session_id: str = "default") -> VectorStoreIndex:
+    def build_esempi_index(self, esempio_files: List[str], session_id: str = "default") -> Optional[VectorStoreIndex]:
         """
         Costruisce indice temporaneo per esempi della sessione.
 
@@ -468,13 +468,13 @@ class LegalRAGEngine:
                 # Crea documento
                 doc = Document(
                     text=text,
-                    metadata={
+                    extra_info={
                         "filename": file_path_obj.name,
                         "source": file_path,
                         "tipo": "esempio",
                         "index": idx
                     },
-                    id_=f"esempio_{idx}"
+                    doc_id=f"esempio_{idx}"
                 )
 
                 documents.append(doc)

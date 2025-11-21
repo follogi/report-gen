@@ -2,7 +2,7 @@
 
 # Percorsi dati
 data:
-  normative_dir: "data/normative"
+  normative_dir: "/Users/gianluca/temp/scraper/output"
   esempi_dir: "data/esempi"
   template_dir: "data/template"
   output_dir: "data/output"

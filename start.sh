@@ -29,14 +29,6 @@ if ! curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
     echo ""
 fi
 
-# Verifica normative
-echo "📚 Verifica normative..."
-if [ -z "$(ls -A data/normative/*.json 2>/dev/null)" ]; then
-    echo "⚠️ Nessuna normativa trovata in data/normative/"
-    echo "Aggiungi almeno un file JSON normativa prima di procedere."
-    echo ""
-fi
-
 # Avvia server
 echo "🌐 Avvio server FastAPI..."
 echo "Frontend disponibile su: http://localhost:8000"
